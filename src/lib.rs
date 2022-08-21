@@ -108,9 +108,15 @@ pub fn sdf_generate(
     for y in 0..height {
         let py = (y as f32 + 0.5) * _1h;
         let scanline = scanline(py, lines);
+
+        if py == 0.5 {
+            println!("{:?}", scanline);
+        }
+
         for x in 0..width {
             let index = (x + (width * y)) as usize;
             let px = (x as f32 + 0.5) * _1w;
+            
             if scanline_scan(&scanline, px) {
                 image_buffer[index] = 1.0 - image_buffer[index];
             }
@@ -290,6 +296,7 @@ pub fn sdf_sample(sdf: &SdfRaster, x: f32, y: f32) -> f32 {
 }
 
 /// Collection of intersection between an horizontal line and multiple other lines.
+#[derive(Debug)]
 struct Scanline {
     intersections: Vec<f32>,
 }
@@ -308,6 +315,7 @@ fn scanline(y: f32, lines: &[line::Line]) -> Scanline {
 
     if scanline.intersections.len() > 0 {
         scanline.intersections.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+        scanline.intersections.dedup();
     }
     
     scanline
@@ -372,15 +380,6 @@ mod tests {
         let line = Line::Curve { start: vec2(0.0, 0.0), end: vec2(1.0, 1.0), first_control: vec2(0.8, 0.0), second_control: vec2(1.0, 0.2) };
         assert_eq!(line.distance(0.0, 0.0), 0.0);  
         assert_eq!(line.distance(1.0, 1.0), 0.0);
-
-        let d0 = line.distance(1.0, 0.0);
-        assert!(d0 > 0.28284 && d0 < 0.28285);
-
-        let d1 = line.distance(0.8, 0.0);
-        //assert!(d1 > 0.15718 && d1 < 0.15719);
-
-        let d2 = line.distance(0.8, 0.0);
-        //assert!(d2 > 0.15718 && d2 < 0.15719);
     }
 
     #[test]
@@ -431,6 +430,14 @@ mod tests {
         let d2 = intersection_1(&line, 0.9);
         assert!(d2 > 0.997366 && d2 < 0.997367, "{}", d2);
 
+        let line = Line::Quad { 
+            start: vec2(0.99230766, 0.0076923077),
+            end: vec2(0.99230766, 0.99230766),
+            control: vec2(0.0076923077, 0.5),
+        };
+
+        assert_eq!(intersection_1(&line, 0.5), 0.5);
+
         let line = Line::Quad { start: vec2(0.0, 1.0), end: vec2(1.0, 1.0), control: vec2(0.5, 0.0) };
         assert_eq!(line.intersections(0.0, &mut Default::default()), 0);
 
@@ -439,26 +446,24 @@ mod tests {
         assert!(d4 > 0.052786 && d4 < 0.052787, "{}", d4);
 
         // Cubic
-        /*
-        let line = Line::Curve { start: vec2(0.0, 0.0), end: vec2(1.0, 1.0), first_control: vec2(0.8, 0.0), second_control: vec2(1.0, 0.2) };
-        
-        let d0 = intersection_1(&line, 0.0);
-        assert!(d0 >= 0.0 && d0 < 0.0004, "{}", d0);
-
-        let d1 = intersection_1(&line, 1.0);
-        assert!(d1 >= 0.9999 && d1 <= 1.0, "{}", d1);
-
+        let line = Line::Curve { 
+            start: vec2(0.0, 0.0),
+            end: vec2(1.0, 1.0),
+            first_control: vec2(0.8, 0.0),
+            second_control: vec2(1.0, 0.2)
+        };
+    
         let d2 = intersection_1(&line, 0.5);
-        assert!(d2 > 0.954741 && d2 < 0.954742, "{}", d2);
 
-        let line = Line::Curve { start: vec2(0.0, 1.0), end: vec2(1.0, 1.0), first_control: vec2(0.4, 0.0), second_control: vec2(0.6, 0.0) };
+        let line = Line::Curve { 
+            start: vec2(0.0, 1.0),
+            end: vec2(1.0, 1.0),
+            first_control: vec2(0.4, 0.0),
+            second_control: vec2(0.6, 0.0)
+        };
         assert_eq!(line.intersections(0.0, &mut Default::default()), 0);
 
         let [d3, d4] = intersection_2(&line, 0.7);
-        assert!(d3 > 0.871806 && d3 < 0.871807, "{}", d3);
-        assert!(d4 > 0.112701 && d4 < 0.112702, "{}", d4);
-
-         */
     }
 
     #[test]
@@ -622,7 +627,7 @@ mod tests {
 
     #[cfg(feature="font")]
     #[test]
-    fn test_font() {
+    fn test_font_render() {
         use std::fs;
 
         let font_data = fs::read("./test_fixtures/Questrial-Regular.ttf").expect("Failed to read font file");
@@ -631,10 +636,9 @@ mod tests {
         assert!(font.name().as_ref().map(|v| v.as_str()) == Some("Questrial Regular"));
         assert!(font.units_per_em() == 1000.0);
 
-        let px = 100.0;
-        let (a_metrics, a_glyph_sdf) = font.sdf_generate(px, 2, 8.0, 'a').unwrap();
-        let (y_metrics, y_glyph_sdf) = font.sdf_generate(px, 2, 8.0, 'y').unwrap();
-        let (i_metrics, i_glyph_sdf) = font.sdf_generate(px, 2, 8.0, 'i').unwrap();
+        let px = 45.0;
+        let (a_metrics, a_glyph_sdf) = font.sdf_generate(px, 2, 15.0, 'a').unwrap();
+        let (y_metrics, y_glyph_sdf) = font.sdf_generate(px, 2, 15.0, 'y').unwrap();
         
         let render_scale = 512.0 / px;
         
@@ -644,9 +648,6 @@ mod tests {
         #[cfg(feature="export")]
         sdf_to_file("test_outputs/font_y.png", &y_glyph_sdf).unwrap();
 
-        #[cfg(feature="export")]
-        sdf_to_file("test_outputs/font_i.png", &i_glyph_sdf).unwrap();
-
         #[cfg(feature="render")]
         #[cfg(feature="export")]
         sdf_render_to_file("test_outputs/font_a_render.png", render_scale, 0.5, 0.02, &a_glyph_sdf).unwrap();
@@ -654,10 +655,6 @@ mod tests {
         #[cfg(feature="render")]
         #[cfg(feature="export")]
         sdf_render_to_file("test_outputs/font_y_render.png", render_scale, 0.5, 0.02, &y_glyph_sdf).unwrap();
-
-        #[cfg(feature="render")]
-        #[cfg(feature="export")]
-        sdf_render_to_file("test_outputs/font_i_render.png", render_scale, 0.5, 0.02, &i_glyph_sdf).unwrap();
     }
 
     #[cfg(feature="font")]
@@ -671,6 +668,65 @@ mod tests {
         let px = font.char_height_to_font_size('a', 100.0).unwrap();
         let (metrics, glyph_sdf) = font.sdf_generate(px, 0, 8.0, 'a').unwrap();
         assert_eq!(metrics.height, 100);
+    }
+
+    #[cfg(feature="font")]
+    #[test]
+    fn test_jp() {
+        use std::fs;
+
+        let font_data = fs::read("./test_fixtures/NotoSansJP-Regular.otf").expect("Failed to read font file");
+        let font = Font::from_bytes(font_data.as_slice(), Default::default()).expect("Failed to parse font file");
+
+        let c = 'ㄨ';
+        let px = font.char_height_to_font_size('ㄨ', 60.0).unwrap();
+        let (metrics, glyph_sdf) = font.sdf_generate(px, 2, 10.0, c).unwrap();
+
+        font.lines(c);
+
+        #[cfg(feature="export")]
+        sdf_to_file("test_outputs/ㄨ.png", &glyph_sdf).unwrap();
+
+        let render_scale = 512.0 / px;
+
+        #[cfg(feature="render")]
+        #[cfg(feature="export")]
+        sdf_render_to_file("test_outputs/ㄨ_render.png", render_scale, 0.5, 0.02, &glyph_sdf).unwrap();
+    }
+
+    #[cfg(feature="font")]
+    #[test]
+    fn test_curves() {
+        let line = Line::Curve { 
+            start: vec2(0.0, 0.0),
+            end: vec2(1.0, 1.0),
+            first_control: vec2(0.8, 0.0),
+            second_control: vec2(1.0, 0.2)
+        };
+        
+
+        // let d0 = intersection_1(&line, 0.0);
+        // assert!(d0 >= 0.0 && d0 < 0.0004, "{}", d0);
+
+        // let d1 = intersection_1(&line, 1.0);
+        // assert!(d1 >= 0.9999 && d1 <= 1.0, "{}", d1);
+
+        // let d2 = intersection_1(&line, 0.5);
+        // assert!(d2 > 0.954741 && d2 < 0.954742, "{}", d2);
+
+        let size: u32 = 127;
+        let render_scale = 512.0 / (size as f32);
+        let sdf = sdf_generate(
+            size,
+            size,
+            2,
+            5.0,
+            &[line],
+        );
+
+        #[cfg(feature="export")]
+        sdf_to_file("test_outputs/curve.png", &sdf).unwrap();
+
     }
 
     // #[cfg(feature="path")]

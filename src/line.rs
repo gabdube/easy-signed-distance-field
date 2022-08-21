@@ -131,26 +131,26 @@ impl Line {
                     return 0;
                 }
 
-                let x0 = start[0];
-                let x1 = control[0];
-                let x2 = end[0];
-                let solve = |t: f32| {
+                let x0 = start[0] as f64;
+                let x1 = control[0] as f64;
+                let x2 = end[0] as f64;
+                let solve = |t: f64| {
                     let t2 = t * t;
                     let mt = 1.0-t;
                     let mt2 = mt * mt;
-                    (x0 * mt2) + (x1 * 2.0*mt*t) + (x2 * t2)
+                    ((x0 * mt2) + (x1 * 2.0*mt*t) + (x2 * t2)) as f32
                 };
 
                 align_quadratic(y, &mut start, &mut end, &mut control);
 
                 let mut count = 0;
-                let a = start[1];
-                let b = control[1];
-                let c = end[1];
+                let a = start[1] as f64;
+                let b = control[1] as f64;
+                let c = end[1] as f64;
                 let d = a - 2.0 * b + c;
 
                 if d != 0.0 {
-                    let m1 = -(b*b - a*c).sqrt();
+                    let m1 = -((b*b - a*c).sqrt());
                     let m2 = -a + b;
                     let r0 = -(m1 + m2) / d;
                     let r1 = -(-m1 + m2) / d;
@@ -176,7 +176,7 @@ impl Line {
             },
             Self::Curve { mut start, mut end, mut first_control, mut second_control } => {
                 // Implementation from https://github.com/Pomax/bezierjs
-                let crt = |v: f32| {
+                let crt = |v: f64| {
                     if v < 0.0 {
                         -((-v).powf(1.0/3.0))
                     } else {
@@ -184,32 +184,66 @@ impl Line {
                     }
                 };
 
-                let x0 = start[0];
-                let x1 = first_control[0];
-                let x2 = second_control[0];
-                let x3 = end[0];
-                let solve = |t: f32| {
+                let x0 = start[0] as f64;
+                let x1 = first_control[0] as f64;
+                let x2 = second_control[0] as f64;
+                let x3 = end[0] as f64;
+                let solve = |t: f64| {
                     let t2 = t * t;
                     let t3 = t2 * t;
                     let mt = 1.0-t;
                     let mt2 = mt * mt;
                     let mt3 = mt2 * mt;
-                    (x0*mt3) + (3.0*x1*mt2*t) + (3.0*x2*mt*t2) + (x3*t3)
+                    ((x0*mt3) + (3.0*x1*mt2*t) + (3.0*x2*mt*t2) + (x3*t3)) as f32
                 };
                 
                 align_cubic(y, &mut start, &mut end, &mut first_control, &mut second_control);
                 
                 let mut count = 0;
 
-                let pa = start[1];
-                let pb = first_control[1];
-                let pc = second_control[1];
-                let pd = end[1];
+                let pa = start[1] as f64;
+                let pb = first_control[1]  as f64;
+                let pc = second_control[1]  as f64;
+                let pd = end[1]  as f64;
 
                 let d = -pa + 3.0 * pb - 3.0 * pc + pd;
                 let mut a = 3.0 * pa - 6.0 * pb + 3.0 * pc;
                 let mut b = -3.0 * pa + 3.0 * pb;
                 let mut c = pa;
+                
+                if approximately(d, 0.0) {
+                    if approximately(a, 0.0) {
+                        if approximately(b, 0.0) {
+                            return 0;
+                        }
+
+                        let v = -c / b;
+                        if 0.0 <= v && v <= 1.0 {
+                            out[count] = solve(v);
+                            count += 1;
+                        }
+
+                        return count;
+                    }
+
+                    let q = (b * b - 4.0 * a * c).sqrt();
+                    let a2 = 2.0 * a;
+
+                    let v1 = (q - b) / a2;
+                    let v2 = (-b - q) / a2;
+                    
+                    if 0.0 <= v1 && v1 <= 1.0 {
+                        out[count] = solve(v1);
+                        count += 1;
+                    }
+
+                    if v1 != v2 && 0.0 <= v2 && v2 <= 1.0 {
+                        out[count] = solve(v2);
+                        count += 1;
+                    }
+
+                    return count
+                }
 
                 a /= d;
                 b /= d;
@@ -222,7 +256,7 @@ impl Line {
                 let discriminant = q2 * q2 + p3 * p3 * p3;
 
                 if discriminant < 0.0 {
-                    let tau = 2.0 * ::std::f32::consts::PI;
+                    let tau = 2.0 * ::std::f64::consts::PI;
                     let mp3 = -p / 3.0;
                     let mp33 = mp3 * mp3 * mp3;
                     let r = mp33.sqrt();
@@ -312,7 +346,11 @@ impl Line {
         let p = vec2(width, height);
         match *self {
             Self::Line { start, end } => Self::Line { start: (start-o) / p, end: (end-o) / p },
-            Self::Quad { start, end, control } => Self::Quad { start: (start-o) / p, end: (end-o) / p, control: (control-o) / p },
+            Self::Quad { start, end, control } => Self::Quad {
+                start: (start-o) / p,
+                end: (end-o) / p,
+                control: (control-o) / p
+            },
             Self::Curve { start, end, first_control, second_control } => Self::Curve { 
                 start: (start-o) / p,
                 end: (end-o) / p,
@@ -366,4 +404,8 @@ fn align_cubic(y: f32, start: &mut Vec2, end: &mut Vec2, control_1: &mut Vec2, c
     *end = *end - p;
     *control_1 = *control_1 - p;
     *control_2 = *control_2 - p;
+}
+
+fn approximately(v1: f64, v2: f64) -> bool {
+    v1 - v2 <= f64::EPSILON
 }
