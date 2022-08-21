@@ -109,10 +109,6 @@ pub fn sdf_generate(
         let py = (y as f32 + 0.5) * _1h;
         let scanline = scanline(py, lines);
 
-        if py == 0.5 {
-            println!("{:?}", scanline);
-        }
-
         for x in 0..width {
             let index = (x + (width * y)) as usize;
             let px = (x as f32 + 0.5) * _1w;
@@ -464,6 +460,16 @@ mod tests {
         assert_eq!(line.intersections(0.0, &mut Default::default()), 0);
 
         let [d3, d4] = intersection_2(&line, 0.7);
+
+        let line = Line::Curve { 
+            start: vec2(0.0, 1.0),
+            end: vec2(1.0, 1.0),
+            first_control: vec2(0.0, -1.0),
+            second_control: vec2(1.0, 1.0)
+        };
+        let [d3, d4] = intersection_2(&line, 0.5);
+        assert!(d3 > 0.030053 && d3 < 0.030054, "{}", d3);
+        assert!(d4 > 0.702885 && d4 < 0.702886, "{}", d4);
     }
 
     #[test]
@@ -670,65 +676,6 @@ mod tests {
         assert_eq!(metrics.height, 100);
     }
 
-    #[cfg(feature="font")]
-    #[test]
-    fn test_jp() {
-        use std::fs;
-
-        let font_data = fs::read("./test_fixtures/NotoSansJP-Regular.otf").expect("Failed to read font file");
-        let font = Font::from_bytes(font_data.as_slice(), Default::default()).expect("Failed to parse font file");
-
-        let c = 'ㄨ';
-        let px = font.char_height_to_font_size('ㄨ', 60.0).unwrap();
-        let (metrics, glyph_sdf) = font.sdf_generate(px, 2, 10.0, c).unwrap();
-
-        font.lines(c);
-
-        #[cfg(feature="export")]
-        sdf_to_file("test_outputs/ㄨ.png", &glyph_sdf).unwrap();
-
-        let render_scale = 512.0 / px;
-
-        #[cfg(feature="render")]
-        #[cfg(feature="export")]
-        sdf_render_to_file("test_outputs/ㄨ_render.png", render_scale, 0.5, 0.02, &glyph_sdf).unwrap();
-    }
-
-    #[cfg(feature="font")]
-    #[test]
-    fn test_curves() {
-        let line = Line::Curve { 
-            start: vec2(0.0, 0.0),
-            end: vec2(1.0, 1.0),
-            first_control: vec2(0.8, 0.0),
-            second_control: vec2(1.0, 0.2)
-        };
-        
-
-        // let d0 = intersection_1(&line, 0.0);
-        // assert!(d0 >= 0.0 && d0 < 0.0004, "{}", d0);
-
-        // let d1 = intersection_1(&line, 1.0);
-        // assert!(d1 >= 0.9999 && d1 <= 1.0, "{}", d1);
-
-        // let d2 = intersection_1(&line, 0.5);
-        // assert!(d2 > 0.954741 && d2 < 0.954742, "{}", d2);
-
-        let size: u32 = 127;
-        let render_scale = 512.0 / (size as f32);
-        let sdf = sdf_generate(
-            size,
-            size,
-            2,
-            5.0,
-            &[line],
-        );
-
-        #[cfg(feature="export")]
-        sdf_to_file("test_outputs/curve.png", &sdf).unwrap();
-
-    }
-
     // #[cfg(feature="path")]
     // #[test]
     // fn test_path() {
@@ -740,7 +687,6 @@ mod tests {
     //         M 0.01075614,6.0085263 c -0.12855096,1.481506 0.908149,3.1560203 2.41413596,3.2493013 0.912778,-0.06096 1.343188,-1.121093 1.238576,-1.9598358 C 3.5801081,6.0604403 2.7526501,4.7931558 1.6775691,4.6275979 0.60248914,4.4620399 -0.00628982,5.221568 0.01075614,6.0085263 z
     //         M 7.1593651,7.2723472 c -1.411887,0.00329 -2.70277,0.9264694 -3.392913,2.1755314 -0.578235,0.9334254 -1.050947,1.9901564 -1.140853,3.1053424 0.01967,0.860048 0.840276,1.575842 1.663122,1.404534 1.173683,-0.152345 2.222485,-0.967418 3.44297,-0.8147 1.014283,0.08097 1.8507729,0.867482 2.8748439,0.856051 0.994345,0.03734 1.56796,-1.102139 1.188753,-1.994632 C 11.387234,10.726579 10.596107,9.6151936 9.746977,8.6142466 9.069618,7.87643 8.1824521,7.2396817 7.1593651,7.2723472 z
     //     ";
-
     // }
 
 }

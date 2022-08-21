@@ -198,7 +198,7 @@ impl Line {
                 };
                 
                 align_cubic(y, &mut start, &mut end, &mut first_control, &mut second_control);
-                
+
                 let mut count = 0;
 
                 let pa = start[1] as f64;
@@ -407,5 +407,5 @@ fn align_cubic(y: f32, start: &mut Vec2, end: &mut Vec2, control_1: &mut Vec2, c
 }
 
 fn approximately(v1: f64, v2: f64) -> bool {
-    v1 - v2 <= f64::EPSILON
+    (v1 - v2).abs() <= f64::EPSILON
 }
