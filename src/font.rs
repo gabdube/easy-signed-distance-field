@@ -274,14 +274,6 @@ impl Font {
         Some((metrics, sdf))
     }
 
-
-    pub fn lines(&self, g: char) {
-        let glyph = self.glyphs.get(&g).unwrap();
-        for line in glyph.lines.iter() {
-            println!("{:?}", line);
-        }
-    }
-
     fn scale_factor(&self, px: f32) -> f32 {
         px / self.units_per_em
     }
