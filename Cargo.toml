@@ -1,0 +1,28 @@
+[package]
+name = "easy-signed-distance-field"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+image = { version="0.24", default-features=false, features=["png"], optional=true }
+ttf-parser = { version="0.15.2", optional=true }
+
+[dev-dependencies]
+criterion = { version = "0.3", features = ["html_reports"]}
+
+[features]
+default = ["font"]
+render = []
+font = ["ttf-parser"]
+export = ["image"]
+
+[[bench]]
+name = "simple"
+harness = false
+
+[[bench]]
+name = "font"
+required-features = ["font"]
+harness = false

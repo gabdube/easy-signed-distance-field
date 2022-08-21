@@ -1,0 +1,40 @@
+[package]
+name = "app"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+easy-signed-distance-field = { path="..", features=["font"] }
+console_error_panic_hook = { version = "0.1.1" }
+wasm-bindgen = "0.2.63"
+js-sys = "0.3.58"
+
+[dependencies.web-sys]
+version = "0.3.58"
+features = [
+  'console',
+  'Document',
+  'Element',
+  'HtmlElement',
+  'Node',
+  'Window',
+  'WebGl2RenderingContext',
+  'HtmlCanvasElement',
+  'WebGlShader',
+  'WebGlProgram',
+  'WebGlBuffer',
+  'WebGlVertexArrayObject',
+  'WebGlTexture',
+  'WebGlUniformLocation',
+  'RequestInit',
+  'RequestMode',
+  'Request',
+  'Response',
+  'CanvasRenderingContext2d',
+  'ImageData',
+]

@@ -1,0 +1,4 @@
+/target
+/Cargo.lock
+test_outputs/*.png
+todo.md

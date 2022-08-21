@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Easy signed distance field</title>
+  <meta name="author" content="Gabriel Dubé">
+  <style>
+    @font-face {
+      font-family: 'Questrial Regular';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('./Questrial-Regular.ttf') format('truetype');
+    }
+    body {
+      font-size: 21px;
+      font-family: 'Questrial Regular';
+    }
+    input[type="text"] {
+      font-size: 21px;
+      font-family: 'Questrial Regular';
+    }
+    input[type="number"] {
+      font-size: 21px;
+      font-family: 'Questrial Regular';
+    }
+    .col {
+      flex: none;
+      display: flex;
+      flex-direction: column;
+      flex-wrap: wrap;
+    }
+    label {
+      flex: 1;
+      text-align: center;
+    }
+    canvas {
+      flex: none;
+      margin-bottom: 20px;
+    }
+    .flex {
+      display: flex;
+    }
+    .input-row {
+      flex: 1 0 auto;
+      text-align: center;
+      margin-bottom: 9px;
+    }
+    .input-row > span {
+      text-align: right;
+      width: 180px;
+      display: inline-block;
+      margin-right: 10px;
+    }
+    .input-value {
+      display: inline-block;
+      width: 200px;
+      height: 20px;
+    }
+    .input-value input[type="text"], .input-row input[type="number"] {
+      width: 100%;
+    }
+    .input-value input[type="checkbox"] {
+      float: left;
+      width: 20px;
+      height: 100%;
+    }
+  </style>
+  <script type="module" src="./index.js" defer></script>
+</head>
+
+<body>
+  <div style="flex-direction: column;">
+    <div class="input-row">
+      <span>Enter a character: </span>
+      <div class="input-value">
+        <input id="textValue" type="text" value="a"/>
+      </div>
+    </div>
+    <div class="input-row">
+      <span id="sizeLabel">Sdf font size (in px): </span>
+      <div class="input-value">
+        <input id="textSize" type="number" value="64"/>
+      </div>
+    </div>
+    <div class="input-row">
+      <span>Sdf spread: </span>
+      <div class="input-value">
+        <input id="textSpread" type="number" value="15.0" step="0.5" />
+      </div>
+    </div>
+    <div class="input-row">
+      <span>Mid value: </span>
+      <div class="input-value">
+        <input id="textMidValue" type="number" value="0.5" step="0.05" />
+      </div>
+    </div>
+    <div class="input-row">
+      <span>Select a font: </span>
+      <div class="input-value">
+        <input id="textFont" type="file" accept=".ttf, .otf"/>
+      </div>
+    </div>
+    <div class="input-row">
+      <span>Use fixed height: </span>
+      <div class="input-value">
+        <input id="fixedHeight" type="checkbox"/>
+      </div>
+    </div>
+    <div class="flex" style="margin-top: 30px">
+      <div style="flex: auto"></div>
+      <div class="col">
+        <canvas id="canvasOutput"></canvas>
+        <label for="canvasOutput">sdf(output)</label>
+      </div>
+      <div class="col">
+        <canvas id="canvasRender"></canvas>
+        <label for="canvasRender">sdf(render)</label>
+      </div>
+      <div class="col">
+        <canvas id="canvasNative"></canvas>
+        <label for="canvasNative">native</label>
+      </div>
+      <div style="flex: auto"></div>
+    </div>
+  </div>
+</body>
+</html>
