@@ -10,7 +10,7 @@ Generally, this technique is used in games to create altases of small character 
 
 For a live demo, head over to https://gabdube.github.io/easy-signed-distance-field/
 
-For the documentation see https://docs.rs/easy-signed-distance-field/0.1.0/easy_signed_distance_field/
+For the documentation see https://docs.rs/easy-signed-distance-field/0.1.1/easy_signed_distance_field/
 
 ![sdf render](images/font_a_render.png) ![sdf](images/font_a.png)
 
