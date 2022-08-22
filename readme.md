@@ -92,6 +92,37 @@ sdf::sdf_render_to_file("test_outputs/font_a_render.png", render_scale, 0.5, 0.0
 Uploading a sdf to an webgl texture
 
 ```rust
+use std::fs;
+use easy_signed_distance_field as sdf;
+
+use web_sys as web;
+use web_sys::WebGl2RenderingContext as GL;
+
+let font_data = fs::read("./test_fixtures/Questrial-Regular.ttf").expect("Failed to read font file");
+let font = sdf::Font::from_bytes(font_data.as_slice(), Default::default()).expect("Failed to parse font file")
+
+let px = 64.0;
+let padding = 2;
+let spread = 6.0;
+let (a_metrics, a_glyph_sdf) = font.sdf_generate(px, padding, spread, 'a').unwrap();
+
+let sdf_bitmap = sdf::sdf_to_bitmap(sdf);
+
+let ctx: web::WebGl2RenderingContext = get_context(); // Pseudo code that fetches your webgl context
+
+let texture = ctx.create_texture().unwrap();
+ctx.bind_texture(GL::TEXTURE_2D, Some(&texture));
+ctx.tex_storage_2d(GL::TEXTURE_2D, 1, GL::R8, sdf.width as i32, sdf.height as i32);
+ctx.tex_sub_image_2d_with_i32_and_i32_and_u32_and_type_and_opt_u8_array(
+    GL::TEXTURE_2D,
+    0,    // Level
+    0, 0, // Offset
+    sdf.width as i32, sdf.height as i32, // Size,
+    GL::RED,
+    GL::UNSIGNED_BYTE,
+    Some(sdf_bitmap.buffer.as_slice())
+).unwrap();
+ctx.bind_texture(GL::TEXTURE_2D, None);
 
 ```
 
