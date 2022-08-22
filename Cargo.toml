@@ -2,6 +2,10 @@
 name = "easy-signed-distance-field"
 version = "0.1.0"
 edition = "2021"
+description = "A simple, pure rust signed distance field renderer"
+license = "MIT"
+repository = "https://github.com/gabdube/easy-signed-distance-field"
+keywords = ["game", "sdf", "signed", "distance", "field"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
