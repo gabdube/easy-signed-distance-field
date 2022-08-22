@@ -13,7 +13,7 @@ ttf-parser = { version="0.15.2", optional=true }
 criterion = { version = "0.3", features = ["html_reports"]}
 
 [features]
-default = ["font"]
+default = []
 render = []
 font = ["ttf-parser"]
 export = ["image"]

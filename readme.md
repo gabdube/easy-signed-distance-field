@@ -8,6 +8,8 @@ Signed distance field is a rendering technique that can generate very small glyp
 
 Generally, this technique is used in games to create altases of small character glyphs that can then be rendered at any resolution. Rendering is done on a gpu on a fragment shader.
 
+For a live demo, head over to https://gabdube.github.io/easy-signed-distance-field/
+
 ![sdf render](images/font_a_render.png) ![sdf](images/font_a.png)
 
 # Features
@@ -116,7 +118,7 @@ This code is MIT licensed.
 
 # Attributions
 
-While I'm not **that** bad at math, I am not a mathematician; most of the algorithm used in this project were created by people much competent than me.
+While I'm not **that** bad at math, I am not a mathematician; most of the algorithm used in this project were created by people much more competent than me.
 
 * https://www.shadertoy.com/view/MlKcDD for the quad bezier distance function
 * https://pomax.github.io/bezierinfo/#introduction for the overall theory behind bezier curves

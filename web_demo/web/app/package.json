@@ -1,0 +1,12 @@
+{
+  "name": "app",
+  "version": "0.1.0",
+  "files": [
+    "app_bg.wasm",
+    "app.js",
+    "app.d.ts"
+  ],
+  "module": "app.js",
+  "types": "app.d.ts",
+  "sideEffects": false
+}
