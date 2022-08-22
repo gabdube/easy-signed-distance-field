@@ -1,6 +1,6 @@
 [package]
 name = "easy-signed-distance-field"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "A simple, pure rust signed distance field renderer"
 license = "MIT"
@@ -30,3 +30,6 @@ harness = false
 name = "font"
 required-features = ["font"]
 harness = false
+
+[package.metadata.docs.rs]
+all-features = true
