@@ -89,7 +89,7 @@ sdf::sdf_to_file("test_outputs/font_a.png", &a_glyph_sdf).unwrap();
 sdf::sdf_render_to_file("test_outputs/font_a_render.png", render_scale, 0.5, 0.02, &a_glyph_sdf).unwrap();
 ```
 
-Uploading a sdf to an webgl texture
+Uploading a sdf to a webgl texture
 
 ```rust
 use std::fs;
