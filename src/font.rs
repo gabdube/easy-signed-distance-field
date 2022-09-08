@@ -214,8 +214,8 @@ impl Font {
         let scale = self.scale_factor(px);
 
         let glyph = self.glyphs.get(&c)?;
-        let bounds = glyph.bounds.scale(scale);
 
+        let bounds = glyph.bounds.scale(scale);
         let metrics = Metrics {
             xmin: bounds.xmin as i32,
             ymin: bounds.ymin as i32,

@@ -83,13 +83,22 @@ impl FontGeometry {
             if y1 > ymax { ymax = y1; }
         }
 
-        self.bounds = OutlineBounds {
-            xmin,
-            ymin,
-            width: xmax - xmin,
-            height: ymax - ymin,
-        };
-
+        if xmin == f32::INFINITY || ymin == f32::INFINITY {
+            self.bounds = OutlineBounds {
+                xmin: 0.0,
+                ymin: 0.0,
+                width: 0.0,
+                height: 0.0,
+            };
+        } else {
+            self.bounds = OutlineBounds {
+                xmin,
+                ymin,
+                width: xmax - xmin,
+                height: ymax - ymin,
+            };
+        }
+       
         // Normalize lines
         let b = self.bounds;
         for line in self.lines.iter_mut() {
