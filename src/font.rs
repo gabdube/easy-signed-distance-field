@@ -62,6 +62,8 @@ impl LineMetrics {
 
 #[derive(Copy, Clone, Debug, Default)]
 pub struct Metrics {
+    pub xmin: i32,
+    pub ymin: i32,
     /// The width of the bitmap in whole pixels.
     pub width: i32,
     /// The height of the bitmap in whole pixels.
@@ -213,7 +215,10 @@ impl Font {
 
         let glyph = self.glyphs.get(&c)?;
         let bounds = glyph.bounds.scale(scale);
+
         let metrics = Metrics {
+            xmin: bounds.xmin as i32,
+            ymin: bounds.ymin as i32,
             width: bounds.width as i32,
             height: bounds.height as i32,
             advance_width: glyph.advance_width * scale,
